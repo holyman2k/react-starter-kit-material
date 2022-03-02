@@ -1,12 +1,13 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Box } from "@mui/material";
 import { List } from "@mui/material";
-import { edit, save, done } from "../slices/todoSlice";
+import { edit, done } from "../slices/todoSlice";
 import TodoItem from "../components/todo/TodoItem";
+import EditTodo from "../components/todo/EditTodo";
 
 const Todo = () => {
     const dispatch = useDispatch();
-    const { list, editItem } = useSelector((store) => store.todo);
+    const { list } = useSelector((store) => store.todo);
 
     const onEdit = (todo) => {
         dispatch(edit(todo));
@@ -26,6 +27,8 @@ const Todo = () => {
                     ))}
                 </List>
             </Box>
+
+            <EditTodo />
         </>
     );
 };

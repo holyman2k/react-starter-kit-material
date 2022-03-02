@@ -11,7 +11,7 @@ import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 
-const NavBar = ({}) => {
+const NavBar = () => {
     const pages = [
         { title: "Home", url: "/" },
         { title: "Todo", url: "todo" },

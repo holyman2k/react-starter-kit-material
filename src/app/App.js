@@ -1,7 +1,10 @@
-import "./styles/styles.css"
+import "./styles/styles.css";
 import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import DateAdapter from "@mui/lab/AdapterDateFns";
+import { LocalizationProvider } from "@mui/lab";
 import { store } from "./store";
 import Layout from "./components/Layout";
 import Home from "./routers/Home";
@@ -12,10 +15,12 @@ function App() {
         <Provider store={store}>
             <BrowserRouter>
                 <Layout>
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/todo" element={<Todo />} />
-                    </Routes>
+                    <LocalizationProvider dateAdapter={DateAdapter}>
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/todo" element={<Todo />} />
+                        </Routes>
+                    </LocalizationProvider>
                 </Layout>
             </BrowserRouter>
         </Provider>

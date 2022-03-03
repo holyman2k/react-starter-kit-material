@@ -1,10 +1,12 @@
 import { useEffect, forwardRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
-import { FormControl, Stack } from "@mui/material";
-import { Button, TextField } from "@mui/material";
-import { DatePicker } from "@mui/lab";
+import { Stack } from "@mui/material";
+import { Button } from "@mui/material";
 import { Slide } from "@mui/material";
+import FormTextField from "../forms/FormTextField";
+import FormDatePicker from "../forms/FormDatePicker";
 import { edit, save } from "../../slices/todoSlice";
 
 const Transition = forwardRef(function Transition(props, ref) {
@@ -14,48 +16,46 @@ const Transition = forwardRef(function Transition(props, ref) {
 const EditTodo = () => {
     const dispatch = useDispatch();
     const { editItem } = useSelector((store) => store.todo);
-    const [todo, setTodo] = useState();
 
     useEffect(() => {
-        setTodo(editItem);
+        reset(editItem);
     }, [editItem]);
 
-    if (!editItem) return null;
+    const form = useForm();
+    const { control, handleSubmit, reset } = form;
+
+    const onSubmit = (data) => {
+        // convert date to timestamp
+        const newTodo = { ...data, due: new Date(data.due).getTime() };
+        dispatch(save(newTodo));
+    };
 
     const onClose = () => {
         dispatch(edit());
     };
 
-    const onTextChange = (e) => {
-        console.log(e.target.value);
-        const newTodo = { ...todo, todo: e.target.value };
-        setTodo(newTodo);
+    const isBeforeToday = (date) => {
+        return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
     };
-    const onDateChange = (date) => {
-        const newTodo = { ...todo, due: date };
-        setTodo(newTodo);
-    };
+
+    if (!editItem) return null;
     return (
         <Dialog maxWidth="sm" fullWidth={true} open={editItem != null} onClose={onClose} TransitionComponent={Transition}>
             <DialogTitle>{editItem ? "Edit" : "New"}</DialogTitle>
             <DialogContent>
-                <FormControl>
-                    <Stack spacing={2}>
-                        <TextField label="Todo" variant="outlined" autoFocus value={todo?.todo} onChange={onTextChange} />
-                        <DatePicker
-                            label="Due"
-                            value={todo?.due}
-                            minDate={new Date()}
-                            onChange={onDateChange}
-                            inputFormat="dd/MM/yyyy"
-                            renderInput={(params) => <TextField {...params} helperText={params?.inputProps?.placeholder} />}
-                        />
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <Stack spacing={3} mt={2}>
+                        <FormTextField name="todo" label="Todo" control={control} rules={{ required: true }} />
+                        <FormDatePicker name="due" label="Due Date" inputFormat="dd/MM/yyyy" control={control} rules={{ required: true }} shouldDisableDate={isBeforeToday} />
+                        <Button type="submit" id="submit" sx={{ display: "none" }}>
+                            Hidden
+                        </Button>
                     </Stack>
-                </FormControl>
+                </form>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <Button onClick={onClose}>Subscribe</Button>
+                <Button onClick={() => document.querySelector("#submit").click()}>Save</Button>
             </DialogActions>
         </Dialog>
     );

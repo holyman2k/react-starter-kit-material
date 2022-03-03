@@ -2,6 +2,7 @@ import NavBar from "./NavBar";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Container from "@mui/material/Container";
+import Busy from "./Busy";
 
 const Layout = ({ children }) => {
     const theme = createTheme();
@@ -12,6 +13,7 @@ const Layout = ({ children }) => {
             <Container maxWidth="md">
                 <div>{children}</div>
             </Container>
+            <Busy />
         </ThemeProvider>
     );
 };

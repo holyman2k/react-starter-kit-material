@@ -7,6 +7,8 @@ import { Button } from "@mui/material";
 import { Slide } from "@mui/material";
 import FormTextField from "../forms/FormTextField";
 import FormDatePicker from "../forms/FormDatePicker";
+import FormSelect from "../forms/FormSelect";
+import FormAutocomplete from "../forms/FormAutocomplete";
 import { edit, save } from "../../slices/todoSlice";
 
 const Transition = forwardRef(function Transition(props, ref) {
@@ -39,6 +41,13 @@ const EditTodo = () => {
     };
 
     if (!editItem) return null;
+
+    const typeList = [
+        { value: 1, label: "Work" },
+        { value: 2, label: "Home" },
+        { value: 3, label: "School" },
+        { value: 4, label: "Fun" },
+    ];
     return (
         <Dialog maxWidth="sm" fullWidth={true} open={editItem != null} onClose={onClose} TransitionComponent={Transition}>
             <DialogTitle>{editItem ? "Edit" : "New"}</DialogTitle>
@@ -47,9 +56,9 @@ const EditTodo = () => {
                     <Stack spacing={3} mt={2}>
                         <FormTextField name="todo" label="Todo" control={control} rules={{ required: true }} />
                         <FormDatePicker name="due" label="Due Date" inputFormat="dd/MM/yyyy" control={control} rules={{ required: true }} shouldDisableDate={isBeforeToday} />
-                        <Button type="submit" id="submit" sx={{ display: "none" }}>
-                            Hidden
-                        </Button>
+                        <FormSelect name="type" label="Type" control={control} options={typeList} />
+                        <FormAutocomplete name="tag" label="Tag" control={control} options={typeList} rules={{ required: true }} />
+                        <Button type="submit" id="submit" sx={{ display: "none" }}></Button>
                     </Stack>
                 </form>
             </DialogContent>

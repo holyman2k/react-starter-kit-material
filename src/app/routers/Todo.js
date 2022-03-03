@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Box } from "@mui/material";
-import { List } from "@mui/material";
+import { TextField, IconButton, Button } from "@mui/material";
+import { List, Stack, Grid } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
 import { edit, done } from "../slices/todoSlice";
 import TodoItem from "../components/todo/TodoItem";
 import EditTodo from "../components/todo/EditTodo";
@@ -8,6 +11,14 @@ import EditTodo from "../components/todo/EditTodo";
 const Todo = () => {
     const dispatch = useDispatch();
     const { list } = useSelector((store) => store.todo);
+    const [search, setSearch] = useState("");
+
+    let filteredList = list;
+    const onSearch = (e) => {
+        e?.preventDefault();
+        e?.stopPropagation();
+        filteredList = list.filter((todo) => todo.todo.contains(search));
+    };
 
     const onEdit = (todo) => {
         dispatch(edit(todo));
@@ -20,13 +31,33 @@ const Todo = () => {
     return (
         <>
             <h1>Todo</h1>
-            <Box width="sm">
-                <List sx={{ width: "400px" }}>
-                    {list.map((todo) => (
-                        <TodoItem key={todo.id} todo={todo} onDone={onDone} onEdit={onEdit} />
-                    ))}
-                </List>
-            </Box>
+
+            <form onSubmit={onSearch} sx={{ width: "100%" }}>
+                <TextField
+                    fullWidth
+                    id="standard-name"
+                    label="Name"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    InputProps={{
+                        endAdornment: (
+                            <IconButton onClick={onSearch}>
+                                <SearchIcon />
+                            </IconButton>
+                        ),
+                    }}
+                />
+            </form>
+
+            <Button variant="contained" sx={{ mt: 4 }} startIcon={<AddIcon />} onClick={() => onEdit({})}>
+                Add New
+            </Button>
+
+            <List sx={{ width: "400px" }}>
+                {filteredList.map((todo) => (
+                    <TodoItem key={todo.id} todo={todo} onDone={onDone} onEdit={onEdit} />
+                ))}
+            </List>
 
             <EditTodo />
         </>

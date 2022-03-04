@@ -1,5 +1,5 @@
 import "./styles/styles.css";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import DateAdapter from "@mui/lab/AdapterDateFns";
@@ -15,9 +15,11 @@ const Lazy = ({ path }) => {
 
 const DelayedOverlay = () => {
     const [show, setShow] = useState(false);
-    setTimeout(() => {
-        setShow(true);
-    }, 500);
+    useEffect(() => {
+        let timer = setTimeout(() => setShow(true), 500);
+        return () => clearTimeout(timer);
+    }, [setShow]);
+
     return show ? <Overlay /> : <></>;
 };
 

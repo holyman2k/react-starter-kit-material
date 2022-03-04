@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { TextField, IconButton, Button } from "@mui/material";
-import { List, Stack, Grid } from "@mui/material";
+import { List } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import { edit, done } from "../slices/todoSlice";
@@ -11,13 +11,17 @@ import EditTodo from "../components/todo/EditTodo";
 const Todo = () => {
     const dispatch = useDispatch();
     const { list } = useSelector((store) => store.todo);
+    const [filteredList, setFilteredList] = useState();
     const [search, setSearch] = useState("");
 
-    let filteredList = list;
+    useEffect(() => {
+        setFilteredList(list);
+    }, [list, setFilteredList]);
+
     const onSearch = (e) => {
         e?.preventDefault();
         e?.stopPropagation();
-        filteredList = list.filter((todo) => todo.todo.contains(search));
+        setFilteredList(list.filter((todo) => todo.todo?.toLowerCase().indexOf(search.toLowerCase()) !== -1));
     };
 
     const onEdit = (todo) => {
@@ -36,7 +40,7 @@ const Todo = () => {
                 <TextField
                     fullWidth
                     id="standard-name"
-                    label="Name"
+                    label="Search"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     InputProps={{
@@ -54,7 +58,7 @@ const Todo = () => {
             </Button>
 
             <List sx={{ width: "400px" }}>
-                {filteredList.map((todo) => (
+                {filteredList?.map((todo) => (
                     <TodoItem key={todo.id} todo={todo} onDone={onDone} onEdit={onEdit} />
                 ))}
             </List>

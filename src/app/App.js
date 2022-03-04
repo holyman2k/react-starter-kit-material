@@ -1,28 +1,31 @@
 import "./styles/styles.css";
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import DateAdapter from "@mui/lab/AdapterDateFns";
 import { LocalizationProvider } from "@mui/lab";
-import Loading from "./components/Loading";
+import Overlay from "./components/Overlay";
 import { store } from "./store";
 import Layout from "./components/Layout";
-// import Home from "./routers/Home";
-// import Todo from "./routers/Todo";
-
-const Home = React.lazy(() => import("./routers/Home"));
-const Todo = React.lazy(() => import("./routers/Todo"));
 
 const Lazy = ({ path }) => {
     const LazyComponent = React.lazy(() => import(`${path}`));
     return <LazyComponent />;
 };
 
+const DelayedOverlay = () => {
+    const [show, setShow] = useState(false);
+    setTimeout(() => {
+        setShow(true);
+    }, 500);
+    return show ? <Overlay /> : <></>;
+};
+
 function App() {
     return (
         <Provider store={store}>
             <BrowserRouter>
-                <Suspense fallback={<Loading />}>
+                <Suspense fallback={<DelayedOverlay />}>
                     <LocalizationProvider dateAdapter={DateAdapter}>
                         <Layout>
                             <Routes>

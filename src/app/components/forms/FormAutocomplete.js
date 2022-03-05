@@ -35,7 +35,7 @@ const FormAutocomplete = forwardRef((props, ref) => {
                         const found = options.find((option) => item.value == option.value);
                         if (!found) optionList.unshift(item);
                     }
-
+                    console.log("render");
                     return (
                         <Autocomplete
                             ref={ref}

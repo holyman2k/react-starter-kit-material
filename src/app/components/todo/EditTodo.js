@@ -16,6 +16,8 @@ const Transition = forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
+let throttle = {};
+
 const EditTodo = () => {
     const dispatch = useDispatch();
     const form = useForm();
@@ -47,12 +49,11 @@ const EditTodo = () => {
         { value: 4, label: "Fun" },
     ];
 
-    let throttle = {};
     const onCountrySearch = (event, value) => {
+        clearTimeout(throttle);
         if (value.trim().length === 0) {
             return;
         }
-        clearTimeout(throttle);
         throttle = setTimeout(() => {
             axios.get(`/api/?q=${value}`).then((response) => {
                 const data = response.data.data;

@@ -8,11 +8,7 @@ const FormAutocomplete = forwardRef((props, ref) => {
     const _onInputChange = (event, value) => {
         if (onInputChange) onInputChange(event, value);
     };
-    // const uniqueList = Array.from(new Set(list.map((a) => a.value))).map((value) => list.find((a) => a.value === value));
-    // console.log("list", uniqueList);
-
-    console.log("opt", otherProps);
-
+    
     const optionList = options || [];
     return (
         <FormControl>
@@ -30,12 +26,11 @@ const FormAutocomplete = forwardRef((props, ref) => {
                         return a?.value === b?.value;
                     };
 
-                    const list = [].concat(value || []);
+                    const list = [].concat(value || []); // force current value into array, normalise multiple
                     for (const item of list) {
                         const found = options.find((option) => item.value == option.value);
                         if (!found) optionList.unshift(item);
                     }
-                    console.log("render");
                     return (
                         <Autocomplete
                             ref={ref}

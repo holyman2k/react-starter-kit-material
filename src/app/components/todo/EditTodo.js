@@ -1,4 +1,5 @@
-import { useEffect, forwardRef } from "react";
+import axios from "axios";
+import { useEffect, forwardRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
@@ -17,14 +18,15 @@ const Transition = forwardRef(function Transition(props, ref) {
 
 const EditTodo = () => {
     const dispatch = useDispatch();
+    const form = useForm();
+    const { control, handleSubmit, getValues, reset } = form;
     const { editItem } = useSelector((store) => store.todo);
+    const [countries, setCountries] = useState(editItem?.country ? [].concat(editItem.country) : []);
 
     useEffect(() => {
         reset(editItem);
-    }, [editItem]);
-
-    const form = useForm();
-    const { control, handleSubmit, reset } = form;
+        setCountries(editItem?.country ? [editItem.country] : null);
+    }, [editItem, reset]);
 
     const onSubmit = (data) => {
         // convert date to timestamp
@@ -32,13 +34,9 @@ const EditTodo = () => {
         dispatch(save(newTodo));
     };
 
-    const onClose = () => {
-        dispatch(edit());
-    };
+    const onClose = () => dispatch(edit());
 
-    const isBeforeToday = (date) => {
-        return date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
-    };
+    const isBeforeToday = (date) => date.getTime() < Date.now() - 24 * 60 * 60 * 1000;
 
     if (!editItem) return null;
 
@@ -48,6 +46,32 @@ const EditTodo = () => {
         { value: 3, label: "School" },
         { value: 4, label: "Fun" },
     ];
+
+    let throttle = {};
+    const onCountrySearch = (event, value) => {
+        if (value.trim().length === 0) {
+            return;
+        }
+        clearTimeout(throttle);
+        throttle = setTimeout(() => {
+            axios.get(`/api/?q=${value}`).then((response) => {
+                const existing = getValues("country");
+                const data = response.data.data;
+                let list = Object.keys(data).map((key) => ({ value: key, label: data[key].country }));
+                if (Array.isArray(existing)) {
+                    list = existing.concat(list);
+                } else if (existing) {
+                    list.unshift(existing);
+                }
+                setCountries(list);
+
+                console.dir(list);
+            });
+        }, 200);
+    };
+
+    console.log(countries);
+
     return (
         <Dialog maxWidth="sm" fullWidth={true} open={editItem != null} onClose={onClose} TransitionComponent={Transition}>
             <DialogTitle>{editItem ? "Edit" : "New"}</DialogTitle>
@@ -57,7 +81,15 @@ const EditTodo = () => {
                         <FormTextField name="todo" label="Todo" control={control} rules={{ required: true }} />
                         <FormDatePicker name="due" label="Due Date" inputFormat="dd/MM/yyyy" control={control} rules={{ required: true }} shouldDisableDate={isBeforeToday} />
                         <FormSelect name="type" label="Type" control={control} options={typeList} />
-                        <FormAutocomplete name="tag" label="Tag" control={control} options={typeList} rules={{ required: true }} />
+                        <FormAutocomplete
+                            name="country"
+                            label="Country"
+                            multiple={true}
+                            control={control}
+                            options={countries}
+                            onInputChange={onCountrySearch}
+                            rules={{ required: true }}
+                        />
                         <Button type="submit" id="submit" sx={{ display: "none" }}></Button>
                     </Stack>
                 </form>

@@ -19,9 +19,9 @@ const Transition = forwardRef(function Transition(props, ref) {
 const EditTodo = () => {
     const dispatch = useDispatch();
     const form = useForm();
-    const { control, handleSubmit, getValues, reset } = form;
+    const { control, handleSubmit, reset } = form;
     const { editItem } = useSelector((store) => store.todo);
-    const [countries, setCountries] = useState(editItem?.country ? [].concat(editItem.country) : []);
+    const [countries, setCountries] = useState([]);
 
     useEffect(() => {
         reset(editItem);
@@ -55,22 +55,12 @@ const EditTodo = () => {
         clearTimeout(throttle);
         throttle = setTimeout(() => {
             axios.get(`/api/?q=${value}`).then((response) => {
-                const existing = getValues("country");
                 const data = response.data.data;
-                let list = Object.keys(data).map((key) => ({ value: key, label: data[key].country }));
-                if (Array.isArray(existing)) {
-                    list = existing.concat(list);
-                } else if (existing) {
-                    list.unshift(existing);
-                }
+                const list = Object.keys(data).map((key) => ({ value: key, label: data[key].country }));
                 setCountries(list);
-
-                console.dir(list);
             });
         }, 200);
     };
-
-    console.log(countries);
 
     return (
         <Dialog maxWidth="sm" fullWidth={true} open={editItem != null} onClose={onClose} TransitionComponent={Transition}>

@@ -48,12 +48,15 @@ const EditTodo = () => {
         { value: 3, label: "School" },
         { value: 4, label: "Fun" },
     ];
+    const assignees = [
+        { value: 1, label: "Me" },
+        { value: 2, label: "Others" },
+    ];
 
     const onCountrySearch = (event, value) => {
         clearTimeout(throttle);
-        if (value.trim().length === 0) {
-            return;
-        }
+        if (value.trim().length === 0) return;
+
         throttle = setTimeout(() => {
             axios.get(`/api/?q=${value}`).then((response) => {
                 const data = response.data.data;
@@ -70,8 +73,9 @@ const EditTodo = () => {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Stack spacing={3} mt={2}>
                         <FormTextField name="todo" label="Todo" control={control} rules={{ required: true }} />
-                        <FormDatePicker name="due" label="Due Date" inputFormat="dd/MM/yyyy" control={control} rules={{ required: true }} shouldDisableDate={isBeforeToday} />
+                        <FormDatePicker name="due" label="Due Date" inputFormat="dd/MM/yyyy" control={control} shouldDisableDate={isBeforeToday} />
                         <FormSelect name="type" label="Type" control={control} options={typeList} />
+                        <FormAutocomplete name="assignee" label="Assignee" control={control} options={assignees} />
                         <FormAutocomplete
                             name="country"
                             label="Country"

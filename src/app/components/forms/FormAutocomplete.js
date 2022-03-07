@@ -5,10 +5,7 @@ import { Controller } from "react-hook-form";
 // options: {label: value:}
 const FormAutocomplete = forwardRef((props, ref) => {
     const { name, control, label, options, multiple, rules, onInputChange, onClose, ...otherProps } = props;
-    const _onInputChange = (event, value) => {
-        if (onInputChange) onInputChange(event, value);
-    };
-    
+
     const optionList = options || [];
     return (
         <FormControl>
@@ -20,17 +17,26 @@ const FormAutocomplete = forwardRef((props, ref) => {
                     const { field, fieldState } = props;
                     const { value, onChange, ...fieldProps } = field;
                     const isOptionEqualToValue = (a, b) => {
-                        if (Array.isArray(a)) {
-                            return a?.any((item) => isOptionEqualToValue(item, b)) || false;
+                        if (Array.isArray(a)) { // handle multiple selection
+                            return a.find((item) => isOptionEqualToValue(item, b)) || false;
                         }
                         return a?.value === b?.value;
                     };
 
-                    const list = [].concat(value || []); // force current value into array, normalise multiple
+                    const list = [].concat(value || []); // force current value into array, handling multiple selection
                     for (const item of list) {
                         const found = options.find((option) => item.value == option.value);
                         if (!found) optionList.unshift(item);
                     }
+                    const onValueChange = (event, value) => {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        if (Array.isArray(value)) {
+                            onChange(value.filter((item) => item.value));
+                        } else {
+                            if (value?.value) onChange(value);
+                        }
+                    }; 
                     return (
                         <Autocomplete
                             ref={ref}
@@ -38,14 +44,15 @@ const FormAutocomplete = forwardRef((props, ref) => {
                             value={value || (multiple === true ? [] : null)}
                             control={control}
                             multiple={multiple || false}
+                            freeSolo
                             {...fieldProps}
                             {...otherProps}
-                            onChange={(event, value) => onChange(value)}
+                            onChange={onValueChange}
                             onClose={onClose}
                             isOptionEqualToValue={isOptionEqualToValue}
                             options={optionList}
                             getOptionLabel={(item) => item?.label || ""}
-                            onInputChange={_onInputChange}
+                            onInputChange={onInputChange}
                             renderInput={(params) => <TextField {...params} label={label} error={fieldState.invalid} />}
                         />
                     );
